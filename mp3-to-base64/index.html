@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="dark light">
   <title>MP3 → Base64</title>
   <style>
     :root {
@@ -16,6 +17,25 @@
       --accent-2: #9b6cff;
       --success: #4ade80;
       --danger: #f87171;
+      --bg-glow: rgba(108, 140, 255, 0.12);
+      --shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+      color-scheme: dark;
+    }
+
+    @media (prefers-color-scheme: light) {
+      :root {
+        color-scheme: light;
+        --bg: #f4f5f9;
+        --card: #ffffff;
+        --card-hover: #eef1f8;
+        --border: #d9dfea;
+        --text: #1b1e28;
+        --muted: #5f6577;
+        --accent: #4a6cf7;
+        --accent-2: #7c3aed;
+        --bg-glow: rgba(108, 140, 255, 0.16);
+        --shadow: 0 8px 30px rgba(15, 23, 42, 0.12);
+      }
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -23,7 +43,7 @@
     body {
       font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
       background: var(--bg);
-      background-image: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(108, 140, 255, 0.12), transparent);
+      background-image: radial-gradient(ellipse 80% 50% at 50% -10%, var(--bg-glow), transparent);
       color: var(--text);
       min-height: 100vh;
       display: flex;
@@ -332,7 +352,7 @@
       padding: 12px 22px;
       border-radius: 12px;
       font-size: 0.9rem;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+      box-shadow: var(--shadow);
       opacity: 0;
       transition: transform 0.3s ease, opacity 0.3s ease;
       pointer-events: none;
@@ -468,7 +488,6 @@
         dropzoneAria: 'Select an MP3 file',
         reading: 'Reading {name}…',
         base64Size: '{size} of text',
-        truncated: '… ({size} more, shown truncated)',
         replace: 'Replace',
         outputLabel: 'Base64 output',
         outputAria: 'Base64 preview',
@@ -489,7 +508,6 @@
         dropzoneAria: 'Sélectionner un fichier MP3',
         reading: 'Lecture de {name}…',
         base64Size: '{size} de texte',
-        truncated: '… ({size} restants, affichage tronqué)',
         replace: 'Remplacer',
         outputLabel: 'Sortie Base64',
         outputAria: 'Aperçu Base64',
@@ -510,7 +528,6 @@
         dropzoneAria: 'Selecciona un archivo MP3',
         reading: 'Leyendo {name}…',
         base64Size: '{size} de texto',
-        truncated: '… ({size} más, mostrado truncado)',
         replace: 'Reemplazar',
         outputLabel: 'Salida Base64',
         outputAria: 'Vista previa de Base64',
@@ -531,7 +548,6 @@
         dropzoneAria: 'MP3-Datei auswählen',
         reading: 'Lese {name}…',
         base64Size: '{size} an Text',
-        truncated: '… ({size} mehr, abgeschnitten)',
         replace: 'Ersetzen',
         outputLabel: 'Base64-Ausgabe',
         outputAria: 'Base64-Vorschau',
@@ -552,7 +568,6 @@
         dropzoneAria: 'Seleziona un file MP3',
         reading: 'Lettura di {name}…',
         base64Size: '{size} di testo',
-        truncated: '… ({size} rimanenti, visualizzazione troncata)',
         replace: 'Sostituisci',
         outputLabel: 'Output Base64',
         outputAria: 'Anteprima Base64',
@@ -573,7 +588,6 @@
         dropzoneAria: 'Selecione um arquivo MP3',
         reading: 'Lendo {name}…',
         base64Size: '{size} de texto',
-        truncated: '… ({size} restantes, exibição truncada)',
         replace: 'Substituir',
         outputLabel: 'Saída Base64',
         outputAria: 'Pré-visualização Base64',
@@ -594,7 +608,6 @@
         dropzoneAria: 'Selecteer een MP3-bestand',
         reading: '{name} wordt gelezen…',
         base64Size: '{size} aan tekst',
-        truncated: '… ({size} meer, afgekapt weergegeven)',
         replace: 'Vervangen',
         outputLabel: 'Base64-uitvoer',
         outputAria: 'Base64-voorbeeld',
@@ -615,7 +628,6 @@
         dropzoneAria: 'Выберите MP3-файл',
         reading: 'Чтение {name}…',
         base64Size: '{size} текста',
-        truncated: '… (ещё {size}, показано не полностью)',
         replace: 'Заменить',
         outputLabel: 'Вывод Base64',
         outputAria: 'Предпросмотр Base64',
@@ -636,7 +648,6 @@
         dropzoneAria: 'MP3ファイルを選択',
         reading: '{name} を読み込み中…',
         base64Size: 'テキスト {size}',
-        truncated: '… (残り {size}、省略表示)',
         replace: '変更',
         outputLabel: 'Base64 出力',
         outputAria: 'Base64 プレビュー',
@@ -657,7 +668,6 @@
         dropzoneAria: '选择 MP3 文件',
         reading: '正在读取 {name}…',
         base64Size: '文本 {size}',
-        truncated: '…（还有 {size}，已截断显示）',
         replace: '更换',
         outputLabel: 'Base64 输出',
         outputAria: 'Base64 预览',
@@ -678,7 +688,6 @@
         dropzoneAria: '選擇 MP3 檔案',
         reading: '正在讀取 {name}…',
         base64Size: '文字 {size}',
-        truncated: '…（還有 {size}，已截斷顯示）',
         replace: '更換',
         outputLabel: 'Base64 輸出',
         outputAria: 'Base64 預覽',
@@ -699,7 +708,6 @@
         dropzoneAria: 'MP3 파일 선택',
         reading: '{name} 읽는 중…',
         base64Size: '텍스트 {size}',
-        truncated: '… ({size} 더 있음, 잘라서 표시)',
         replace: '바꾸기',
         outputLabel: 'Base64 출력',
         outputAria: 'Base64 미리보기',
@@ -720,7 +728,6 @@
         dropzoneAria: 'اختر ملف MP3',
         reading: 'جارٍ قراءة {name}…',
         base64Size: '{size} من النص',
-        truncated: '… ({size} المتبقية، معروضة مجتزأة)',
         replace: 'استبدال',
         outputLabel: 'مخرجات Base64',
         outputAria: 'معاينة Base64',
@@ -741,7 +748,6 @@
         dropzoneAria: 'MP3 फ़ाइल चुनें',
         reading: '{name} पढ़ा जा रहा है…',
         base64Size: '{size} टेक्स्ट',
-        truncated: '… ({size} और, संक्षिप्त रूप में दिखाया गया)',
         replace: 'बदलें',
         outputLabel: 'Base64 आउटपुट',
         outputAria: 'Base64 पूर्वावलोकन',
@@ -762,7 +768,6 @@
         dropzoneAria: 'Bir MP3 dosyası seçin',
         reading: '{name} okunuyor…',
         base64Size: '{size} metin',
-        truncated: '… ({size} daha, kısaltılmış gösterim)',
         replace: 'Değiştir',
         outputLabel: 'Base64 çıktısı',
         outputAria: 'Base64 önizleme',
@@ -783,7 +788,6 @@
         dropzoneAria: 'Wybierz plik MP3',
         reading: 'Odczytywanie {name}…',
         base64Size: '{size} tekstu',
-        truncated: '… (jeszcze {size}, skrócony podgląd)',
         replace: 'Zmień',
         outputLabel: 'Wynik Base64',
         outputAria: 'Podgląd Base64',
@@ -887,7 +891,6 @@
     const toastText = document.getElementById('toastText');
     const toastIcon = document.getElementById('toastIcon');
 
-    const PREVIEW_LENGTH = 3000;
     const CHECK_SVG = '<polyline points="20 6 9 17 4 12"/>';
     const ERROR_SVG = '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>';
 
@@ -920,18 +923,10 @@
       progressWrap.style.display = show ? 'block' : 'none';
     }
 
-    function renderOutputPreview() {
-      const str = state.base64;
-      if (!str) { output.textContent = ''; return; }
-      output.textContent = str.length > PREVIEW_LENGTH
-        ? str.slice(0, PREVIEW_LENGTH) + '\n\n' + t('truncated', { size: formatBytes(str.length - PREVIEW_LENGTH) })
-        : str;
-    }
-
     function renderResultTexts() {
       if (!state.fileName) return;
       base64SizeEl.textContent = t('base64Size', { size: formatBytes(state.base64.length) });
-      renderOutputPreview();
+      output.textContent = state.base64;
       copyBtn.classList.remove('copied');
       copyLabel.textContent = t('copy');
     }
