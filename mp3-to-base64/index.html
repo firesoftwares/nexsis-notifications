@@ -58,36 +58,6 @@
       max-width: 680px;
     }
 
-    .topbar {
-      display: flex;
-      justify-content: flex-end;
-      margin-bottom: 4px;
-    }
-
-    .lang-select {
-      background: var(--card);
-      border: 1px solid var(--border);
-      color: var(--muted);
-      font-family: inherit;
-      font-size: 0.8rem;
-      padding: 6px 10px;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: color 0.15s, border-color 0.15s;
-      max-width: 50vw;
-    }
-
-    .lang-select:hover, .lang-select:focus-visible {
-      color: var(--text);
-      border-color: var(--accent);
-      outline: none;
-    }
-
-    .lang-select option {
-      background: var(--card);
-      color: var(--text);
-    }
-
     header {
       text-align: center;
       margin-bottom: 32px;
@@ -381,10 +351,6 @@
 </head>
 <body>
   <div class="container">
-    <div class="topbar">
-      <select id="langSelect" class="lang-select" aria-label="Language"></select>
-    </div>
-
     <header>
       <h1>MP3 <span>→</span> Base64</h1>
       <p data-i18n="subtitle"></p>
@@ -458,25 +424,6 @@
 
     /* ── i18n ─────────────────────────────────────────────── */
 
-    const LANGUAGES = {
-      en: 'English',
-      fr: 'Français',
-      es: 'Español',
-      de: 'Deutsch',
-      it: 'Italiano',
-      pt: 'Português',
-      nl: 'Nederlands',
-      ru: 'Русский',
-      ja: '日本語',
-      zh: '中文（简体）',
-      'zh-tw': '中文（繁體）',
-      ko: '한국어',
-      ar: 'العربية',
-      hi: 'हिन्दी',
-      tr: 'Türkçe',
-      pl: 'Polski'
-    };
-
     const RTL_LANGS = new Set(['ar', 'he', 'fa', 'ur']);
 
     const translations = {
@@ -497,8 +444,7 @@
         toastCopied: 'Base64 copied to clipboard',
         toastInvalid: 'Please select a valid MP3 file.',
         toastError: 'Failed to read the file.',
-        footer: 'Your file never leaves your device — everything is processed locally.',
-        langAria: 'Language'
+        footer: 'Your file never leaves your device — everything is processed locally.'
       },
       fr: {
         subtitle: 'Convertissez votre fichier MP3 en Base64, localement dans votre navigateur.',
@@ -517,8 +463,7 @@
         toastCopied: 'Base64 copié dans le presse-papiers',
         toastInvalid: 'Veuillez sélectionner un fichier MP3 valide.',
         toastError: 'Échec de la lecture du fichier.',
-        footer: 'Votre fichier ne quitte jamais votre appareil — tout est traité localement.',
-        langAria: 'Langue'
+        footer: 'Votre fichier ne quitte jamais votre appareil — tout est traité localement.'
       },
       es: {
         subtitle: 'Convierte tu archivo MP3 a Base64, localmente en tu navegador.',
@@ -537,8 +482,7 @@
         toastCopied: 'Base64 copiado al portapapeles',
         toastInvalid: 'Selecciona un archivo MP3 válido.',
         toastError: 'Error al leer el archivo.',
-        footer: 'Tu archivo nunca sale de tu dispositivo — todo se procesa localmente.',
-        langAria: 'Idioma'
+        footer: 'Tu archivo nunca sale de tu dispositivo — todo se procesa localmente.'
       },
       de: {
         subtitle: 'Konvertiere deine MP3-Datei zu Base64, direkt in deinem Browser.',
@@ -557,8 +501,7 @@
         toastCopied: 'Base64 in die Zwischenablage kopiert',
         toastInvalid: 'Bitte wähle eine gültige MP3-Datei.',
         toastError: 'Datei konnte nicht gelesen werden.',
-        footer: 'Deine Datei verlässt niemals dein Gerät — alles wird lokal verarbeitet.',
-        langAria: 'Sprache'
+        footer: 'Deine Datei verlässt niemals dein Gerät — alles wird lokal verarbeitet.'
       },
       it: {
         subtitle: 'Converti il tuo file MP3 in Base64, direttamente nel browser.',
@@ -577,8 +520,7 @@
         toastCopied: 'Base64 copiato negli appunti',
         toastInvalid: 'Seleziona un file MP3 valido.',
         toastError: 'Impossibile leggere il file.',
-        footer: 'Il tuo file non lascia mai il tuo dispositivo — tutto è elaborato localmente.',
-        langAria: 'Lingua'
+        footer: 'Il tuo file non lascia mai il tuo dispositivo — tutto è elaborato localmente.'
       },
       pt: {
         subtitle: 'Converta seu arquivo MP3 para Base64, localmente no seu navegador.',
@@ -597,8 +539,7 @@
         toastCopied: 'Base64 copiado para a área de transferência',
         toastInvalid: 'Selecione um arquivo MP3 válido.',
         toastError: 'Falha ao ler o arquivo.',
-        footer: 'Seu arquivo nunca sai do seu dispositivo — tudo é processado localmente.',
-        langAria: 'Idioma'
+        footer: 'Seu arquivo nunca sai do seu dispositivo — tudo é processado localmente.'
       },
       nl: {
         subtitle: 'Converteer je MP3-bestand naar Base64, lokaal in je browser.',
@@ -617,8 +558,7 @@
         toastCopied: 'Base64 gekopieerd naar het klembord',
         toastInvalid: 'Selecteer een geldig MP3-bestand.',
         toastError: 'Kan het bestand niet lezen.',
-        footer: 'Je bestand verlaat nooit je apparaat — alles wordt lokaal verwerkt.',
-        langAria: 'Taal'
+        footer: 'Je bestand verlaat nooit je apparaat — alles wordt lokaal verwerkt.'
       },
       ru: {
         subtitle: 'Конвертируйте MP3-файл в Base64 прямо в браузере.',
@@ -637,8 +577,7 @@
         toastCopied: 'Base64 скопирован в буфер обмена',
         toastInvalid: 'Выберите корректный MP3-файл.',
         toastError: 'Не удалось прочитать файл.',
-        footer: 'Ваш файл никогда не покидает устройство — всё обрабатывается локально.',
-        langAria: 'Язык'
+        footer: 'Ваш файл никогда не покидает устройство — всё обрабатывается локально.'
       },
       ja: {
         subtitle: 'MP3ファイルをブラウザ内でBase64に変換します。',
@@ -657,8 +596,7 @@
         toastCopied: 'Base64をクリップボードにコピーしました',
         toastInvalid: '有効なMP3ファイルを選択してください。',
         toastError: 'ファイルの読み込みに失敗しました。',
-        footer: 'ファイルはデバイスから離れません — すべてローカルで処理されます。',
-        langAria: '言語'
+        footer: 'ファイルはデバイスから離れません — すべてローカルで処理されます。'
       },
       zh: {
         subtitle: '在浏览器本地将 MP3 文件转换为 Base64。',
@@ -677,8 +615,7 @@
         toastCopied: 'Base64 已复制到剪贴板',
         toastInvalid: '请选择有效的 MP3 文件。',
         toastError: '读取文件失败。',
-        footer: '您的文件永远不会离开设备 — 所有处理均在本地完成。',
-        langAria: '语言'
+        footer: '您的文件永远不会离开设备 — 所有处理均在本地完成。'
       },
       'zh-tw': {
         subtitle: '在瀏覽器本機將 MP3 檔案轉換為 Base64。',
@@ -697,8 +634,7 @@
         toastCopied: 'Base64 已複製到剪貼簿',
         toastInvalid: '請選擇有效的 MP3 檔案。',
         toastError: '讀取檔案失敗。',
-        footer: '您的檔案永遠不會離開裝置 — 所有處理均在本機完成。',
-        langAria: '語言'
+        footer: '您的檔案永遠不會離開裝置 — 所有處理均在本機完成。'
       },
       ko: {
         subtitle: '브라우저에서 로컬로 MP3 파일을 Base64로 변환합니다.',
@@ -717,8 +653,7 @@
         toastCopied: 'Base64가 클립보드에 복사되었습니다',
         toastInvalid: '유효한 MP3 파일을 선택하세요.',
         toastError: '파일을 읽지 못했습니다.',
-        footer: '파일은 기기를 떠나지 않으며 — 모든 처리가 로컬에서 이루어집니다.',
-        langAria: '언어'
+        footer: '파일은 기기를 떠나지 않으며 — 모든 처리가 로컬에서 이루어집니다.'
       },
       ar: {
         subtitle: 'حوّل ملف MP3 إلى Base64 محليًا في متصفحك.',
@@ -737,8 +672,7 @@
         toastCopied: 'تم نسخ Base64 إلى الحافظة',
         toastInvalid: 'يرجى اختيار ملف MP3 صالح.',
         toastError: 'فشلت قراءة الملف.',
-        footer: 'ملفك لا يترك جهازك أبدًا — تتم معالجة كل شيء محليًا.',
-        langAria: 'اللغة'
+        footer: 'ملفك لا يترك جهازك أبدًا — تتم معالجة كل شيء محليًا.'
       },
       hi: {
         subtitle: 'अपनी MP3 फ़ाइल को ब्राउज़र में ही Base64 में बदलें।',
@@ -757,8 +691,7 @@
         toastCopied: 'Base64 क्लिपबोर्ड पर कॉपी हो गया',
         toastInvalid: 'कृपया मान्य MP3 फ़ाइल चुनें।',
         toastError: 'फ़ाइल पढ़ने में विफल।',
-        footer: 'आपकी फ़ाइल कभी भी आपके डिवाइस से बाहर नहीं जाती — सब कुछ स्थानीय रूप से संसाधित होता है।',
-        langAria: 'भाषा'
+        footer: 'आपकी फ़ाइल कभी भी आपके डिवाइस से बाहर नहीं जाती — सब कुछ स्थानीय रूप से संसाधित होता है।'
       },
       tr: {
         subtitle: 'MP3 dosyanızı tarayıcınızda yerel olarak Base64\'e dönüştürün.',
@@ -777,8 +710,7 @@
         toastCopied: 'Base64 panoya kopyalandı',
         toastInvalid: 'Lütfen geçerli bir MP3 dosyası seçin.',
         toastError: 'Dosya okunamadı.',
-        footer: 'Dosyanız asla cihazınızdan ayrılmaz — her şey yerel olarak işlenir.',
-        langAria: 'Dil'
+        footer: 'Dosyanız asla cihazınızdan ayrılmaz — her şey yerel olarak işlenir.'
       },
       pl: {
         subtitle: 'Konwertuj pliki MP3 na Base64 lokalnie w przeglądarce.',
@@ -797,8 +729,7 @@
         toastCopied: 'Base64 skopiowany do schowka',
         toastInvalid: 'Wybierz prawidłowy plik MP3.',
         toastError: 'Nie udało się odczytać pliku.',
-        footer: 'Twój plik nigdy nie opuszcza urządzenia — wszystko przetwarzane jest lokalnie.',
-        langAria: 'Język'
+        footer: 'Twój plik nigdy nie opuszcza urządzenia — wszystko przetwarzane jest lokalnie.'
       }
     };
 
@@ -815,12 +746,8 @@
 
     function detectLanguage() {
       const candidates = [];
-      try {
-        const urlLang = new URLSearchParams(location.search).get('lang');
-        if (urlLang) candidates.push(urlLang);
-        const saved = localStorage.getItem('preferred-lang');
-        if (saved) candidates.push(saved);
-      } catch {}
+      const urlLang = new URLSearchParams(location.search).get('lang');
+      if (urlLang) candidates.push(urlLang);
       if (navigator.languages) candidates.push(...navigator.languages);
       if (navigator.language) candidates.push(navigator.language);
 
@@ -855,18 +782,13 @@
 
       dropzone.setAttribute('aria-label', t('dropzoneAria'));
       output.setAttribute('aria-label', t('outputAria'));
-      langSelect.setAttribute('aria-label', t('langAria'));
-      langSelect.value = currentLang;
 
       renderResultTexts();
     }
 
-    function setLanguage(code, persist = false) {
+    function setLanguage(code) {
       if (!translations[code]) code = 'en';
       currentLang = code;
-      if (persist) {
-        try { localStorage.setItem('preferred-lang', code); } catch {}
-      }
       applyTranslations();
     }
 
@@ -874,7 +796,6 @@
 
     const dropzone = document.getElementById('dropzone');
     const fileInput = document.getElementById('fileInput');
-    const langSelect = document.getElementById('langSelect');
     const progressWrap = document.getElementById('progressWrap');
     const progressFill = document.getElementById('progressFill');
     const progressLabel = document.getElementById('progressLabel');
@@ -1004,15 +925,6 @@
         copyLabel.textContent = t('copy');
       }, 2000);
     }
-
-    // Language selector
-    for (const [code, name] of Object.entries(LANGUAGES)) {
-      const opt = document.createElement('option');
-      opt.value = code;
-      opt.textContent = name;
-      langSelect.appendChild(opt);
-    }
-    langSelect.addEventListener('change', () => setLanguage(langSelect.value, true));
 
     // Dropzone interactions
     dropzone.addEventListener('click', () => fileInput.click());
