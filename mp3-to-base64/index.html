@@ -38,6 +38,36 @@
       max-width: 680px;
     }
 
+    .topbar {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 4px;
+    }
+
+    .lang-select {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-family: inherit;
+      font-size: 0.8rem;
+      padding: 6px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+      max-width: 50vw;
+    }
+
+    .lang-select:hover, .lang-select:focus-visible {
+      color: var(--text);
+      border-color: var(--accent);
+      outline: none;
+    }
+
+    .lang-select option {
+      background: var(--card);
+      color: var(--text);
+    }
+
     header {
       text-align: center;
       margin-bottom: 32px;
@@ -198,6 +228,7 @@
       background: none;
       border: 1px solid var(--border);
       color: var(--muted);
+      font-family: inherit;
       font-size: 0.8rem;
       padding: 6px 12px;
       border-radius: 8px;
@@ -244,6 +275,8 @@
       color: var(--muted);
       word-break: break-all;
       white-space: pre-wrap;
+      direction: ltr;
+      text-align: left;
     }
 
     .output:focus { outline: 1px solid var(--accent); }
@@ -261,6 +294,7 @@
       padding: 12px 20px;
       border: none;
       border-radius: 10px;
+      font-family: inherit;
       font-size: 0.95rem;
       font-weight: 600;
       cursor: pointer;
@@ -327,12 +361,16 @@
 </head>
 <body>
   <div class="container">
+    <div class="topbar">
+      <select id="langSelect" class="lang-select" aria-label="Language"></select>
+    </div>
+
     <header>
       <h1>MP3 <span>→</span> Base64</h1>
-      <p>Convert your MP3 file to Base64, locally in your browser.</p>
+      <p data-i18n="subtitle"></p>
     </header>
 
-    <div class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="Select an MP3 file">
+    <div class="dropzone" id="dropzone" tabindex="0" role="button">
       <div class="icon">
         <svg fill="none" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -340,12 +378,12 @@
           <line x1="12" y1="3" x2="12" y2="15"/>
         </svg>
       </div>
-      <div class="title">Drop your MP3 file here</div>
-      <div class="hint">or <u>browse</u> from your device</div>
+      <div class="title" data-i18n="dropTitle"></div>
+      <div class="hint" data-i18n="dropHint"></div>
     </div>
 
     <div class="progress-wrap" id="progressWrap">
-      <div class="progress-label" id="progressLabel">Reading file…</div>
+      <div class="progress-label" id="progressLabel"></div>
       <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
     </div>
 
@@ -362,28 +400,28 @@
           <div class="file-name" id="fileName"></div>
           <div class="file-stats" id="fileStats"></div>
         </div>
-        <button class="replace-btn" id="replaceBtn" type="button">Replace</button>
+        <button class="replace-btn" id="replaceBtn" type="button" data-i18n="replace"></button>
       </div>
       <div class="result-body">
         <audio id="audioPreview" controls preload="none"></audio>
         <div class="output-label">
-          <span class="label">Base64 output</span>
+          <span class="label" data-i18n="outputLabel"></span>
           <span class="size" id="base64Size"></span>
         </div>
-        <div class="output" id="output" tabindex="0" aria-label="Base64 preview"></div>
+        <div class="output" id="output" tabindex="0"></div>
         <div class="actions">
           <button class="btn btn-primary" id="copyBtn" type="button">
             <svg fill="none" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
               <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
               <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
             </svg>
-            <span id="copyLabel">Copy to clipboard</span>
+            <span id="copyLabel"></span>
           </button>
         </div>
       </div>
     </div>
 
-    <footer>Your file never leaves your device — everything is processed locally.</footer>
+    <footer data-i18n="footer"></footer>
   </div>
 
   <div class="toast" id="toast">
@@ -396,8 +434,443 @@
   <input type="file" id="fileInput" accept=".mp3,audio/mpeg" hidden>
 
   <script>
+    'use strict';
+
+    /* ── i18n ─────────────────────────────────────────────── */
+
+    const LANGUAGES = {
+      en: 'English',
+      fr: 'Français',
+      es: 'Español',
+      de: 'Deutsch',
+      it: 'Italiano',
+      pt: 'Português',
+      nl: 'Nederlands',
+      ru: 'Русский',
+      ja: '日本語',
+      zh: '中文（简体）',
+      'zh-tw': '中文（繁體）',
+      ko: '한국어',
+      ar: 'العربية',
+      hi: 'हिन्दी',
+      tr: 'Türkçe',
+      pl: 'Polski'
+    };
+
+    const RTL_LANGS = new Set(['ar', 'he', 'fa', 'ur']);
+
+    const translations = {
+      en: {
+        subtitle: 'Convert your MP3 file to Base64, locally in your browser.',
+        dropTitle: 'Drop your MP3 file here',
+        dropHint: 'or {browse} from your device',
+        browse: 'browse',
+        dropzoneAria: 'Select an MP3 file',
+        reading: 'Reading {name}…',
+        base64Size: '{size} of text',
+        truncated: '… ({size} more, shown truncated)',
+        replace: 'Replace',
+        outputLabel: 'Base64 output',
+        outputAria: 'Base64 preview',
+        copy: 'Copy to clipboard',
+        copied: 'Copied!',
+        toastConverted: 'Conversion complete',
+        toastCopied: 'Base64 copied to clipboard',
+        toastInvalid: 'Please select a valid MP3 file.',
+        toastError: 'Failed to read the file.',
+        footer: 'Your file never leaves your device — everything is processed locally.',
+        langAria: 'Language'
+      },
+      fr: {
+        subtitle: 'Convertissez votre fichier MP3 en Base64, localement dans votre navigateur.',
+        dropTitle: 'Déposez votre fichier MP3 ici',
+        dropHint: 'ou {browse} depuis votre appareil',
+        browse: 'parcourir',
+        dropzoneAria: 'Sélectionner un fichier MP3',
+        reading: 'Lecture de {name}…',
+        base64Size: '{size} de texte',
+        truncated: '… ({size} restants, affichage tronqué)',
+        replace: 'Remplacer',
+        outputLabel: 'Sortie Base64',
+        outputAria: 'Aperçu Base64',
+        copy: 'Copier dans le presse-papiers',
+        copied: 'Copié !',
+        toastConverted: 'Conversion terminée',
+        toastCopied: 'Base64 copié dans le presse-papiers',
+        toastInvalid: 'Veuillez sélectionner un fichier MP3 valide.',
+        toastError: 'Échec de la lecture du fichier.',
+        footer: 'Votre fichier ne quitte jamais votre appareil — tout est traité localement.',
+        langAria: 'Langue'
+      },
+      es: {
+        subtitle: 'Convierte tu archivo MP3 a Base64, localmente en tu navegador.',
+        dropTitle: 'Arrastra tu archivo MP3 aquí',
+        dropHint: 'o {browse} desde tu dispositivo',
+        browse: 'explora',
+        dropzoneAria: 'Selecciona un archivo MP3',
+        reading: 'Leyendo {name}…',
+        base64Size: '{size} de texto',
+        truncated: '… ({size} más, mostrado truncado)',
+        replace: 'Reemplazar',
+        outputLabel: 'Salida Base64',
+        outputAria: 'Vista previa de Base64',
+        copy: 'Copiar al portapapeles',
+        copied: '¡Copiado!',
+        toastConverted: 'Conversión completada',
+        toastCopied: 'Base64 copiado al portapapeles',
+        toastInvalid: 'Selecciona un archivo MP3 válido.',
+        toastError: 'Error al leer el archivo.',
+        footer: 'Tu archivo nunca sale de tu dispositivo — todo se procesa localmente.',
+        langAria: 'Idioma'
+      },
+      de: {
+        subtitle: 'Konvertiere deine MP3-Datei zu Base64, direkt in deinem Browser.',
+        dropTitle: 'MP3-Datei hier ablegen',
+        dropHint: 'oder vom Gerät {browse}',
+        browse: 'auswählen',
+        dropzoneAria: 'MP3-Datei auswählen',
+        reading: 'Lese {name}…',
+        base64Size: '{size} an Text',
+        truncated: '… ({size} mehr, abgeschnitten)',
+        replace: 'Ersetzen',
+        outputLabel: 'Base64-Ausgabe',
+        outputAria: 'Base64-Vorschau',
+        copy: 'In die Zwischenablage kopieren',
+        copied: 'Kopiert!',
+        toastConverted: 'Konvertierung abgeschlossen',
+        toastCopied: 'Base64 in die Zwischenablage kopiert',
+        toastInvalid: 'Bitte wähle eine gültige MP3-Datei.',
+        toastError: 'Datei konnte nicht gelesen werden.',
+        footer: 'Deine Datei verlässt niemals dein Gerät — alles wird lokal verarbeitet.',
+        langAria: 'Sprache'
+      },
+      it: {
+        subtitle: 'Converti il tuo file MP3 in Base64, direttamente nel browser.',
+        dropTitle: 'Trascina qui il tuo file MP3',
+        dropHint: 'oppure {browse} dal tuo dispositivo',
+        browse: 'sfoglia',
+        dropzoneAria: 'Seleziona un file MP3',
+        reading: 'Lettura di {name}…',
+        base64Size: '{size} di testo',
+        truncated: '… ({size} rimanenti, visualizzazione troncata)',
+        replace: 'Sostituisci',
+        outputLabel: 'Output Base64',
+        outputAria: 'Anteprima Base64',
+        copy: 'Copia negli appunti',
+        copied: 'Copiato!',
+        toastConverted: 'Conversione completata',
+        toastCopied: 'Base64 copiato negli appunti',
+        toastInvalid: 'Seleziona un file MP3 valido.',
+        toastError: 'Impossibile leggere il file.',
+        footer: 'Il tuo file non lascia mai il tuo dispositivo — tutto è elaborato localmente.',
+        langAria: 'Lingua'
+      },
+      pt: {
+        subtitle: 'Converta seu arquivo MP3 para Base64, localmente no seu navegador.',
+        dropTitle: 'Arraste seu arquivo MP3 aqui',
+        dropHint: 'ou {browse} do seu dispositivo',
+        browse: 'explore',
+        dropzoneAria: 'Selecione um arquivo MP3',
+        reading: 'Lendo {name}…',
+        base64Size: '{size} de texto',
+        truncated: '… ({size} restantes, exibição truncada)',
+        replace: 'Substituir',
+        outputLabel: 'Saída Base64',
+        outputAria: 'Pré-visualização Base64',
+        copy: 'Copiar para a área de transferência',
+        copied: 'Copiado!',
+        toastConverted: 'Conversão concluída',
+        toastCopied: 'Base64 copiado para a área de transferência',
+        toastInvalid: 'Selecione um arquivo MP3 válido.',
+        toastError: 'Falha ao ler o arquivo.',
+        footer: 'Seu arquivo nunca sai do seu dispositivo — tudo é processado localmente.',
+        langAria: 'Idioma'
+      },
+      nl: {
+        subtitle: 'Converteer je MP3-bestand naar Base64, lokaal in je browser.',
+        dropTitle: 'Sleep je MP3-bestand hierheen',
+        dropHint: 'of {browse} vanaf je apparaat',
+        browse: 'blader',
+        dropzoneAria: 'Selecteer een MP3-bestand',
+        reading: '{name} wordt gelezen…',
+        base64Size: '{size} aan tekst',
+        truncated: '… ({size} meer, afgekapt weergegeven)',
+        replace: 'Vervangen',
+        outputLabel: 'Base64-uitvoer',
+        outputAria: 'Base64-voorbeeld',
+        copy: 'Kopiëren naar klembord',
+        copied: 'Gekopieerd!',
+        toastConverted: 'Conversie voltooid',
+        toastCopied: 'Base64 gekopieerd naar het klembord',
+        toastInvalid: 'Selecteer een geldig MP3-bestand.',
+        toastError: 'Kan het bestand niet lezen.',
+        footer: 'Je bestand verlaat nooit je apparaat — alles wordt lokaal verwerkt.',
+        langAria: 'Taal'
+      },
+      ru: {
+        subtitle: 'Конвертируйте MP3-файл в Base64 прямо в браузере.',
+        dropTitle: 'Перетащите MP3-файл сюда',
+        dropHint: 'или {browse} на своём устройстве',
+        browse: 'выберите',
+        dropzoneAria: 'Выберите MP3-файл',
+        reading: 'Чтение {name}…',
+        base64Size: '{size} текста',
+        truncated: '… (ещё {size}, показано не полностью)',
+        replace: 'Заменить',
+        outputLabel: 'Вывод Base64',
+        outputAria: 'Предпросмотр Base64',
+        copy: 'Копировать в буфер обмена',
+        copied: 'Скопировано!',
+        toastConverted: 'Конвертация завершена',
+        toastCopied: 'Base64 скопирован в буфер обмена',
+        toastInvalid: 'Выберите корректный MP3-файл.',
+        toastError: 'Не удалось прочитать файл.',
+        footer: 'Ваш файл никогда не покидает устройство — всё обрабатывается локально.',
+        langAria: 'Язык'
+      },
+      ja: {
+        subtitle: 'MP3ファイルをブラウザ内でBase64に変換します。',
+        dropTitle: 'MP3ファイルをここにドロップ',
+        dropHint: 'またはデバイスから{browse}',
+        browse: '選択',
+        dropzoneAria: 'MP3ファイルを選択',
+        reading: '{name} を読み込み中…',
+        base64Size: 'テキスト {size}',
+        truncated: '… (残り {size}、省略表示)',
+        replace: '変更',
+        outputLabel: 'Base64 出力',
+        outputAria: 'Base64 プレビュー',
+        copy: 'クリップボードにコピー',
+        copied: 'コピーしました！',
+        toastConverted: '変換が完了しました',
+        toastCopied: 'Base64をクリップボードにコピーしました',
+        toastInvalid: '有効なMP3ファイルを選択してください。',
+        toastError: 'ファイルの読み込みに失敗しました。',
+        footer: 'ファイルはデバイスから離れません — すべてローカルで処理されます。',
+        langAria: '言語'
+      },
+      zh: {
+        subtitle: '在浏览器本地将 MP3 文件转换为 Base64。',
+        dropTitle: '将 MP3 文件拖放到此处',
+        dropHint: '或从设备{browse}',
+        browse: '浏览',
+        dropzoneAria: '选择 MP3 文件',
+        reading: '正在读取 {name}…',
+        base64Size: '文本 {size}',
+        truncated: '…（还有 {size}，已截断显示）',
+        replace: '更换',
+        outputLabel: 'Base64 输出',
+        outputAria: 'Base64 预览',
+        copy: '复制到剪贴板',
+        copied: '已复制！',
+        toastConverted: '转换完成',
+        toastCopied: 'Base64 已复制到剪贴板',
+        toastInvalid: '请选择有效的 MP3 文件。',
+        toastError: '读取文件失败。',
+        footer: '您的文件永远不会离开设备 — 所有处理均在本地完成。',
+        langAria: '语言'
+      },
+      'zh-tw': {
+        subtitle: '在瀏覽器本機將 MP3 檔案轉換為 Base64。',
+        dropTitle: '將 MP3 檔案拖放到此處',
+        dropHint: '或從裝置{browse}',
+        browse: '瀏覽',
+        dropzoneAria: '選擇 MP3 檔案',
+        reading: '正在讀取 {name}…',
+        base64Size: '文字 {size}',
+        truncated: '…（還有 {size}，已截斷顯示）',
+        replace: '更換',
+        outputLabel: 'Base64 輸出',
+        outputAria: 'Base64 預覽',
+        copy: '複製到剪貼簿',
+        copied: '已複製！',
+        toastConverted: '轉換完成',
+        toastCopied: 'Base64 已複製到剪貼簿',
+        toastInvalid: '請選擇有效的 MP3 檔案。',
+        toastError: '讀取檔案失敗。',
+        footer: '您的檔案永遠不會離開裝置 — 所有處理均在本機完成。',
+        langAria: '語言'
+      },
+      ko: {
+        subtitle: '브라우저에서 로컬로 MP3 파일을 Base64로 변환합니다.',
+        dropTitle: 'MP3 파일을 여기에 끌어다 놓으세요',
+        dropHint: '또는 기기에서 {browse}',
+        browse: '선택',
+        dropzoneAria: 'MP3 파일 선택',
+        reading: '{name} 읽는 중…',
+        base64Size: '텍스트 {size}',
+        truncated: '… ({size} 더 있음, 잘라서 표시)',
+        replace: '바꾸기',
+        outputLabel: 'Base64 출력',
+        outputAria: 'Base64 미리보기',
+        copy: '클립보드에 복사',
+        copied: '복사됨!',
+        toastConverted: '변환 완료',
+        toastCopied: 'Base64가 클립보드에 복사되었습니다',
+        toastInvalid: '유효한 MP3 파일을 선택하세요.',
+        toastError: '파일을 읽지 못했습니다.',
+        footer: '파일은 기기를 떠나지 않으며 — 모든 처리가 로컬에서 이루어집니다.',
+        langAria: '언어'
+      },
+      ar: {
+        subtitle: 'حوّل ملف MP3 إلى Base64 محليًا في متصفحك.',
+        dropTitle: 'أفلت ملف MP3 هنا',
+        dropHint: 'أو {browse} من جهازك',
+        browse: 'تصفّح',
+        dropzoneAria: 'اختر ملف MP3',
+        reading: 'جارٍ قراءة {name}…',
+        base64Size: '{size} من النص',
+        truncated: '… ({size} المتبقية، معروضة مجتزأة)',
+        replace: 'استبدال',
+        outputLabel: 'مخرجات Base64',
+        outputAria: 'معاينة Base64',
+        copy: 'نسخ إلى الحافظة',
+        copied: 'تم النسخ!',
+        toastConverted: 'اكتمل التحويل',
+        toastCopied: 'تم نسخ Base64 إلى الحافظة',
+        toastInvalid: 'يرجى اختيار ملف MP3 صالح.',
+        toastError: 'فشلت قراءة الملف.',
+        footer: 'ملفك لا يترك جهازك أبدًا — تتم معالجة كل شيء محليًا.',
+        langAria: 'اللغة'
+      },
+      hi: {
+        subtitle: 'अपनी MP3 फ़ाइल को ब्राउज़र में ही Base64 में बदलें।',
+        dropTitle: 'अपनी MP3 फ़ाइल यहाँ छोड़ें',
+        dropHint: 'या अपने डिवाइस से {browse}',
+        browse: 'ब्राउज़ करें',
+        dropzoneAria: 'MP3 फ़ाइल चुनें',
+        reading: '{name} पढ़ा जा रहा है…',
+        base64Size: '{size} टेक्स्ट',
+        truncated: '… ({size} और, संक्षिप्त रूप में दिखाया गया)',
+        replace: 'बदलें',
+        outputLabel: 'Base64 आउटपुट',
+        outputAria: 'Base64 पूर्वावलोकन',
+        copy: 'क्लिपबोर्ड पर कॉपी करें',
+        copied: 'कॉपी हो गया!',
+        toastConverted: 'रूपांतरण पूर्ण हुआ',
+        toastCopied: 'Base64 क्लिपबोर्ड पर कॉपी हो गया',
+        toastInvalid: 'कृपया मान्य MP3 फ़ाइल चुनें।',
+        toastError: 'फ़ाइल पढ़ने में विफल।',
+        footer: 'आपकी फ़ाइल कभी भी आपके डिवाइस से बाहर नहीं जाती — सब कुछ स्थानीय रूप से संसाधित होता है।',
+        langAria: 'भाषा'
+      },
+      tr: {
+        subtitle: 'MP3 dosyanızı tarayıcınızda yerel olarak Base64\'e dönüştürün.',
+        dropTitle: 'MP3 dosyanızı buraya bırakın',
+        dropHint: 'veya cihazınızdan {browse}',
+        browse: 'seçin',
+        dropzoneAria: 'Bir MP3 dosyası seçin',
+        reading: '{name} okunuyor…',
+        base64Size: '{size} metin',
+        truncated: '… ({size} daha, kısaltılmış gösterim)',
+        replace: 'Değiştir',
+        outputLabel: 'Base64 çıktısı',
+        outputAria: 'Base64 önizleme',
+        copy: 'Panoya kopyala',
+        copied: 'Kopyalandı!',
+        toastConverted: 'Dönüştürme tamamlandı',
+        toastCopied: 'Base64 panoya kopyalandı',
+        toastInvalid: 'Lütfen geçerli bir MP3 dosyası seçin.',
+        toastError: 'Dosya okunamadı.',
+        footer: 'Dosyanız asla cihazınızdan ayrılmaz — her şey yerel olarak işlenir.',
+        langAria: 'Dil'
+      },
+      pl: {
+        subtitle: 'Konwertuj pliki MP3 na Base64 lokalnie w przeglądarce.',
+        dropTitle: 'Upuść plik MP3 tutaj',
+        dropHint: 'lub {browse} na urządzeniu',
+        browse: 'wybierz',
+        dropzoneAria: 'Wybierz plik MP3',
+        reading: 'Odczytywanie {name}…',
+        base64Size: '{size} tekstu',
+        truncated: '… (jeszcze {size}, skrócony podgląd)',
+        replace: 'Zmień',
+        outputLabel: 'Wynik Base64',
+        outputAria: 'Podgląd Base64',
+        copy: 'Kopiuj do schowka',
+        copied: 'Skopiowano!',
+        toastConverted: 'Konwersja zakończona',
+        toastCopied: 'Base64 skopiowany do schowka',
+        toastInvalid: 'Wybierz prawidłowy plik MP3.',
+        toastError: 'Nie udało się odczytać pliku.',
+        footer: 'Twój plik nigdy nie opuszcza urządzenia — wszystko przetwarzane jest lokalnie.',
+        langAria: 'Język'
+      }
+    };
+
+    let currentLang = 'en';
+
+    function normalizeLangCode(raw) {
+      const lower = (raw || '').toLowerCase();
+      if (!lower) return null;
+      if (lower.startsWith('zh')) {
+        return /(tw|hk|mo|hant)/.test(lower) ? 'zh-tw' : 'zh';
+      }
+      return lower.split('-')[0];
+    }
+
+    function detectLanguage() {
+      const candidates = [];
+      try {
+        const urlLang = new URLSearchParams(location.search).get('lang');
+        if (urlLang) candidates.push(urlLang);
+        const saved = localStorage.getItem('preferred-lang');
+        if (saved) candidates.push(saved);
+      } catch {}
+      if (navigator.languages) candidates.push(...navigator.languages);
+      if (navigator.language) candidates.push(navigator.language);
+
+      for (const raw of candidates) {
+        const code = normalizeLangCode(raw);
+        if (code && translations[code]) return code;
+      }
+      return 'en';
+    }
+
+    function t(key, params = {}) {
+      let str = (translations[currentLang] && translations[currentLang][key])
+        ?? translations.en[key] ?? key;
+      for (const [k, v] of Object.entries(params)) {
+        str = str.replaceAll('{' + k + '}', v);
+      }
+      return str;
+    }
+
+    function applyTranslations() {
+      document.documentElement.lang = currentLang;
+      document.documentElement.dir = RTL_LANGS.has(currentLang) ? 'rtl' : 'ltr';
+
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.dataset.i18n;
+        if (key === 'dropHint') {
+          el.innerHTML = t('dropHint').replace('{browse}', '<u>' + t('browse') + '</u>');
+        } else {
+          el.textContent = t(key);
+        }
+      });
+
+      dropzone.setAttribute('aria-label', t('dropzoneAria'));
+      output.setAttribute('aria-label', t('outputAria'));
+      langSelect.setAttribute('aria-label', t('langAria'));
+      langSelect.value = currentLang;
+
+      renderResultTexts();
+    }
+
+    function setLanguage(code, persist = false) {
+      if (!translations[code]) code = 'en';
+      currentLang = code;
+      if (persist) {
+        try { localStorage.setItem('preferred-lang', code); } catch {}
+      }
+      applyTranslations();
+    }
+
+    /* ── App ──────────────────────────────────────────────── */
+
     const dropzone = document.getElementById('dropzone');
     const fileInput = document.getElementById('fileInput');
+    const langSelect = document.getElementById('langSelect');
     const progressWrap = document.getElementById('progressWrap');
     const progressFill = document.getElementById('progressFill');
     const progressLabel = document.getElementById('progressLabel');
@@ -418,7 +891,7 @@
     const CHECK_SVG = '<polyline points="20 6 9 17 4 12"/>';
     const ERROR_SVG = '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>';
 
-    let base64String = '';
+    const state = { fileName: null, fileSize: 0, base64: '' };
     let toastTimer = null;
 
     function formatBytes(bytes) {
@@ -447,16 +920,32 @@
       progressWrap.style.display = show ? 'block' : 'none';
     }
 
+    function renderOutputPreview() {
+      const str = state.base64;
+      if (!str) { output.textContent = ''; return; }
+      output.textContent = str.length > PREVIEW_LENGTH
+        ? str.slice(0, PREVIEW_LENGTH) + '\n\n' + t('truncated', { size: formatBytes(str.length - PREVIEW_LENGTH) })
+        : str;
+    }
+
+    function renderResultTexts() {
+      if (!state.fileName) return;
+      base64SizeEl.textContent = t('base64Size', { size: formatBytes(state.base64.length) });
+      renderOutputPreview();
+      copyBtn.classList.remove('copied');
+      copyLabel.textContent = t('copy');
+    }
+
     function handleFile(file) {
       if (!file) return;
       if (!isMp3(file)) {
-        showToast('Please select a valid MP3 file.', true);
+        showToast(t('toastInvalid'), true);
         return;
       }
 
       showProgress(true);
       progressFill.style.width = '0%';
-      progressLabel.textContent = 'Reading ' + file.name + '…';
+      progressLabel.textContent = t('reading', { name: file.name });
 
       const reader = new FileReader();
 
@@ -470,7 +959,10 @@
         progressFill.style.width = '100%';
         setTimeout(() => {
           const dataUrl = e.target.result;
-          base64String = dataUrl.split(',')[1];
+
+          state.fileName = file.name;
+          state.fileSize = file.size;
+          state.base64 = dataUrl.split(',')[1];
 
           dropzone.style.display = 'none';
           progressWrap.style.display = 'none';
@@ -479,36 +971,29 @@
           fileName.textContent = file.name;
           fileName.title = file.name;
           fileStats.textContent = formatBytes(file.size) + ' · MP3';
-          base64SizeEl.textContent = formatBytes(base64String.length) + ' of text';
-
-          output.textContent = base64String.length > PREVIEW_LENGTH
-            ? base64String.slice(0, PREVIEW_LENGTH) + '\n\n… (' + formatBytes(base64String.length - PREVIEW_LENGTH) + ' more, shown truncated)'
-            : base64String;
 
           audioPreview.src = dataUrl;
-
-          copyBtn.classList.remove('copied');
-          copyLabel.textContent = 'Copy to clipboard';
-          showToast('Conversion complete');
+          renderResultTexts();
+          showToast(t('toastConverted'));
         }, 150);
       };
 
       reader.onerror = () => {
         showProgress(false);
-        showToast('Failed to read the file.', true);
+        showToast(t('toastError'), true);
       };
 
       reader.readAsDataURL(file);
     }
 
     async function copyToClipboard() {
-      if (!base64String) return;
+      if (!state.base64) return;
       try {
-        await navigator.clipboard.writeText(base64String);
+        await navigator.clipboard.writeText(state.base64);
       } catch {
         // Fallback for non-secure contexts
         const ta = document.createElement('textarea');
-        ta.value = base64String;
+        ta.value = state.base64;
         ta.style.position = 'fixed';
         ta.style.opacity = '0';
         document.body.appendChild(ta);
@@ -517,13 +1002,22 @@
         ta.remove();
       }
       copyBtn.classList.add('copied');
-      copyLabel.textContent = 'Copied!';
-      showToast('Base64 copied to clipboard');
+      copyLabel.textContent = t('copied');
+      showToast(t('toastCopied'));
       setTimeout(() => {
         copyBtn.classList.remove('copied');
-        copyLabel.textContent = 'Copy to clipboard';
+        copyLabel.textContent = t('copy');
       }, 2000);
     }
+
+    // Language selector
+    for (const [code, name] of Object.entries(LANGUAGES)) {
+      const opt = document.createElement('option');
+      opt.value = code;
+      opt.textContent = name;
+      langSelect.appendChild(opt);
+    }
+    langSelect.addEventListener('change', () => setLanguage(langSelect.value, true));
 
     // Dropzone interactions
     dropzone.addEventListener('click', () => fileInput.click());
@@ -557,6 +1051,9 @@
 
     replaceBtn.addEventListener('click', () => fileInput.click());
     copyBtn.addEventListener('click', copyToClipboard);
+
+    // Init
+    setLanguage(detectLanguage());
   </script>
 </body>
 </html>
